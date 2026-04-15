@@ -1,9 +1,14 @@
 const cache = new Map<string, number[]>();
 
 export async function getEmbedding(text: string): Promise<number[]> {
-  if (cache.has(text)) {
-    return cache.get(text)!;
+  const key = text.trim().toLowerCase();
+
+  if (cache.has(key)) {
+    console.log("CACHE HIT:", key);
+    return cache.get(key)!;
   }
+
+  console.log("CACHE MISS:", key);
 
   const res = await fetch(`${process.env.AI_BASE_URL}/embeddings`, {
     method: "POST",
@@ -20,7 +25,7 @@ export async function getEmbedding(text: string): Promise<number[]> {
   const data = await res.json();
   const embedding = data.data[0].embedding;
 
-  cache.set(text, embedding);
+  cache.set(key, embedding);
 
   return embedding;
 }
